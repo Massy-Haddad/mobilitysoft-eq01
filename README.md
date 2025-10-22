@@ -27,4 +27,4 @@ uvicorn app.main:app --reload
 - `POST /api/v1/reentrainer` : ré-entraîne le modèle synthétique.
 - `GET /api/v1/sante` : statut du service.
 - `GET /api/v1/predictions` : récupère l'historique des prédictions avec options de filtrage (skip, limit, date_debut, date_fin).
-- `GET /api/v1/predictions/{id}` : récupère une prédiction spécifique par son ID.
+- `GET /api/v1/predictions/{id}` : récupère une prédiction spécifique avec son ID.
