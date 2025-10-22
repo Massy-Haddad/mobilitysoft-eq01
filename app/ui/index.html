@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MobilitySoft — Prédiction de trafic</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --muted:#64748b; --card:#f8fafc; --border:#e2e8f0; --primary:#2563eb; --accent:#10b981; --danger:#ef4444; --shadow:0 10px 30px rgba(2,6,23,.08); }
+    [data-theme="dark"] { --bg:#0b1220; --fg:#e5e7eb; --muted:#94a3b8; --card:#0f172a; --border:#1e293b; --primary:#60a5fa; --accent:#34d399; --danger:#f87171; --shadow:0 10px 30px rgba(148,163,184,.15); }
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .wrap{max-width:1200px;margin:0 auto;padding:24px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-weight:900;box-shadow:var(--shadow)}
+    .subtitle{color:var(--muted);font-size:12px}
+    .btn{padding:9px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--fg);cursor:pointer;box-shadow:var(--shadow)}
+    .btn:hover{filter:brightness(1.05)} .btn.primary{background:var(--primary);color:#fff;border-color:transparent} .btn.ghost{background:transparent}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px} @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+    .card{border:1px solid var(--border);background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--shadow)} .card h3{margin:8px 0 14px}
+    .row{display:grid;grid-template-columns:220px 1fr auto;gap:12px;align-items:center;margin:10px 0}
+    label{font-weight:700} input[type=range],input[type=number],select,input[type=time]{width:100%;padding:9px 11px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--fg)}
+    .muted{color:var(--muted);font-size:12px} .seg{display:inline-flex;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .seg button{border:none;padding:8px 12px;background:var(--card);color:var(--fg);cursor:pointer} .seg button.active{background:var(--primary);color:#fff}
+    .actions{display:flex;gap:10px;flex-wrap:wrap} .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#eaf2ff;color:#1e40af} [data-theme="dark"] .pill{background:#0b2447;color:#93c5fd}
+    .gauge{width:160px;height:160px;border-radius:50%;background:conic-gradient(var(--danger) calc(var(--p)*1%), #334155 0);display:grid;place-items:center;margin:auto}
+    .gauge .inner{width:116px;height:116px;border-radius:50%;background:var(--card);display:grid;place-items:center;border:2px solid var(--border)}
+    .gauge .value{font-size:24px;font-weight:800}
+    footer{margin-top:16px;color:var(--muted);font-size:12px}
+    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0001;border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+    #map{width:100%; height:360px; border-radius:14px; border:1px solid var(--border); box-shadow:var(--shadow);}
+    .maprow{display:grid; grid-template-columns: 1fr; gap: 12px; align-items: start;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo" id="logoText">MS</div>
+      <div>
+        <div id="brandTitle" style="font-weight:900;">MTL-Mobility — Prédiction de trafic</div>
+      </div>
+    </div>
+    <div><button class="btn" onclick="toggleTheme()">Mode sombre / clair</button></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Paramètres d’entrée</h3>
+
+      <div class="card" style="padding:12px; margin-bottom:12px;">
+        <h4 style="margin:4px 0 10px 0;">Carte & Positions</h4>
+        <div class="row">
+          <label>Mode de sélection</label>
+          <div class="seg">
+            <button id="selA" class="active" onclick="setSelect('A')">Point A</button>
+            <button id="selB" onclick="setSelect('B')">Point B</button>
+          </div>
+          <div class="muted">Cliquez sur la carte pour placer A/B</div>
+        </div>
+        <div class="maprow">
+          <div id="map"></div>
+        </div>
+        <div class="row">
+          <label>Coordonnées A</label>
+          <div><span id="coordA">—</span></div><div></div>
+        </div>
+        <div class="row">
+          <label>Coordonnées B</label>
+          <div><span id="coordB">—</span></div><div></div>
+        </div>
+        <div class="row">
+          <label>Distance A–B (km)</label>
+          <div><span id="distAB">0.0</span> km</div>
+          <button class="btn ghost" onclick="clearPoints()">Effacer</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Heure de départ</label>
+        <input type="time" id="heure_depart" value="08:00" step="300" oninput="onTimeChange()" />
+        <div><span id="heureAff">08:00</span></div>
+      </div>
+      <div class="row">
+        <label>Jour de la semaine</label>
+        <div class="seg" id="jourSeg"></div>
+        <div class="muted">0=Lun … 6=Dim</div>
+      </div>
+      <div class="row">
+        <label>Météo</label>
+        <div class="seg">
+          <button id="m0" class="active" onclick="setMeteo(0)">Clair ☀️</button>
+          <button id="m1" onclick="setMeteo(1)">Pluie 🌧️</button>
+          <button id="m2" onclick="setMeteo(2)">Neige ❄️</button>
+        </div>
+        <div></div>
+      </div>
+      <div class="row">
+        <label>Incident signalé</label>
+        <div class="seg">
+          <button id="i0" class="active" onclick="setIncident(0)">Non</button>
+          <button id="i1" onclick="setIncident(1)">Oui</button>
+        </div>
+        <div></div>
+      </div>
+      <div class="row">
+        <label>Vitesse moyenne (km/h)</label>
+        <input type="range" id="vitesse" min="5" max="130" step="1" value="45" oninput="sync('vitesse','vitVal')" />
+        <div><span id="vitVal">45</span> km/h</div>
+      </div>
+      <div class="row">
+        <label>Débit (véh./min)</label>
+        <input type="range" id="debit" min="5" max="120" step="1" value="50" oninput="sync('debit','debVal')" />
+        <div><span id="debVal">50</span> véh./min</div>
+      </div>
+      <h4>Scénarios rapides</h4>
+      <div class="actions">
+        <button class="btn" onclick="preset('pointe_matin')">Pointe matin</button>
+        <button class="btn" onclick="preset('pluie')">Pluie modérée</button>
+        <button class="btn" onclick="preset('neige_incident')">Neige + incident</button>
+        <button class="btn" onclick="preset('nuit_calme')">Nuit calme</button>
+      </div>
+      <div class="actions" style="margin-top:12px;">
+        <button class="btn primary" onclick="predire()">🔮 Prédire</button>
+        <button class="btn" onclick="reentrainer()">♻️ Ré-entraîner</button>
+        <button class="btn ghost" onclick="resetForm()">↺ Réinitialiser</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Résultat</h3>
+      <div class="two">
+        <div>
+          <div id="gauge" class="gauge" style="--p:0;">
+            <div class="inner"><div class="value" id="probVal">0%</div></div>
+          </div>
+        </div>
+        <div>
+          <div id="resume" class="muted">—</div>
+          <ul id="recos"></ul>
+        </div>
+      </div>
+      <h3 style="margin-top:14px;">Historique (local)</h3>
+      <div class="actions">
+        <button class="btn" onclick="exportCSV()">Exporter CSV</button>
+        <button class="btn" onclick="clearHist()">Vider l’historique</button>
+      </div>
+      <div id="hist"></div>
+    </div>
+  </div>
+
+  <footer>
+    Remarque : ce TP est uniquement destiné à un travail de laboratoire.
+    L’application est imaginaire et le modèle de prédiction utilisé est naïf.
+    Vous pouvez toutefois modifier l’implémentation de la prédiction selon votre propre logique.
+  </footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+// Branding
+(function brandInit(){
+  const url = new URL(location.href);
+  const qBrand = url.searchParams.get('brand');
+  const stored = localStorage.getItem('brandName');
+  const brand = (qBrand || stored || 'MobilitySoft').trim();
+  localStorage.setItem('brandName', brand);
+  document.title = brand + ' — Prédiction de trafic';
+  document.getElementById('brandTitle').textContent = brand + ' — Prédiction de trafic';
+  const words = brand.replace(/([a-z])([A-Z])/g, '$1 $2').split(/[\s_]+/).filter(Boolean);
+  const ac = words.map(w => w[0]).join('').slice(0,3).toUpperCase();
+  document.getElementById('logoText').textContent = ac;
+})();
+// Thème
+function toggleTheme(){ const el=document.documentElement; const cur=el.getAttribute('data-theme'); el.setAttribute('data-theme', cur==='dark' ? 'light' : 'dark'); localStorage.setItem('theme', el.getAttribute('data-theme')); }
+(function(){ const saved=localStorage.getItem('theme'); if(saved) document.documentElement.setAttribute('data-theme', saved); })();
+// UI helpers
+const jourLabels=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"]; let meteo=0, incident=0, jour=2;
+const histKey="ms_hist_embed_fr"; const base = location.origin + '/api/v1';
+function sync(id,out){ document.getElementById(out).textContent=document.getElementById(id).value; }
+function setMeteo(m){ meteo=m; for(const k of [0,1,2]) document.getElementById('m'+k).classList.toggle('active', k===m); }
+function setIncident(i){ incident=i; document.getElementById('i0').classList.toggle('active', i===0); document.getElementById('i1').classList.toggle('active', i===1); }
+function buildJourSeg(){ const seg=document.getElementById('jourSeg'); seg.innerHTML=''; for(let i=0;i<7;i++){ const b=document.createElement('button'); b.textContent=jourLabels[i]; b.onclick=()=>setJour(i); if(i===jour) b.classList.add('active'); seg.appendChild(b);} }
+function setJour(j){ jour=j; const seg=document.getElementById('jourSeg'); [...seg.children].forEach((b,idx)=> b.classList.toggle('active', idx===j)); }
+// Carte Leaflet
+let map, sel='A', markerA=null, markerB=null, lineAB=null, coordsA=null, coordsB=null;
+function setSelect(which){ sel=which; document.getElementById('selA').classList.toggle('active', which==='A'); document.getElementById('selB').classList.toggle('active', which==='B'); }
+function clearPoints(){
+  coordsA=coordsB=null; if(markerA){map.removeLayer(markerA); markerA=null;} if(markerB){map.removeLayer(markerB); markerB=null;}
+  if(lineAB){map.removeLayer(lineAB); lineAB=null;}
+  document.getElementById('coordA').textContent='—'; document.getElementById('coordB').textContent='—'; document.getElementById('distAB').textContent='0.0';
+}
+function fmt(c){ return c.lat.toFixed(5)+', '+c.lng.toFixed(5); }
+function distanceKm(a,b){
+  const R=6371.0088; const dLat=(b.lat-a.lat)*Math.PI/180; const dLon=(b.lng-a.lng)*Math.PI/180;
+  const s1=Math.sin(dLat/2), s2=Math.sin(dLon/2);
+  const A=s1*s1 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*s2*s2;
+  return 2*R*Math.asin(Math.sqrt(A));
+}
+function updateLineAndDist(){
+  if(coordsA && coordsB){
+    const dist=distanceKm(coordsA, coordsB);
+    document.getElementById('distAB').textContent = dist.toFixed(2);
+    if(lineAB){ map.removeLayer(lineAB); }
+    lineAB = L.polyline([[coordsA.lat,coordsA.lng],[coordsB.lat,coordsB.lng]], {color:'#2563eb'}).addTo(map);
+  }
+}
+function onMapClick(e){
+  if(sel==='A'){
+    coordsA = e.latlng;
+    document.getElementById('coordA').textContent = fmt(coordsA);
+    if(!markerA){ markerA = L.marker(coordsA, {draggable:true}).addTo(map); markerA.on('dragend', ()=>{ coordsA=markerA.getLatLng(); document.getElementById('coordA').textContent=fmt(coordsA); updateLineAndDist(); }); }
+    else { markerA.setLatLng(coordsA); }
+  } else {
+    coordsB = e.latlng;
+    document.getElementById('coordB').textContent = fmt(coordsB);
+    if(!markerB){ markerB = L.marker(coordsB, {draggable:true}).addTo(map); markerB.on('dragend', ()=>{ coordsB=markerB.getLatLng(); document.getElementById('coordB').textContent=fmt(coordsB); updateLineAndDist(); }); }
+    else { markerB.setLatLng(coordsB); }
+  }
+  updateLineAndDist();
+}
+function initMap(){
+  map = L.map('map').setView([45.5017, -73.5673], 12); // Montréal par défaut
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap',
+  }).addTo(map);
+  map.on('click', onMapClick);
+}
+// Heure de départ
+function onTimeChange(){
+  const v = document.getElementById('heure_depart').value || '08:00';
+  document.getElementById('heureAff').textContent = v;
+}
+function getHeureInt(){
+  const v = document.getElementById('heure_depart').value || '08:00';
+  const parts = v.split(':');
+  const h = parseInt(parts[0] || '8', 10);
+  return Math.max(0, Math.min(23, isNaN(h) ? 8 : h));
+}
+// Historique
+function addHist(item){ const arr=JSON.parse(localStorage.getItem(histKey)||"[]"); arr.unshift(item); while(arr.length>20) arr.pop(); localStorage.setItem(histKey, JSON.stringify(arr)); renderHist(); }
+function renderHist(){ const arr=JSON.parse(localStorage.getItem(histKey)||"[]"); const box=document.getElementById('hist'); box.innerHTML=''; for(const it of arr){ const tag=it.risque==='élevé'?'<span class="pill">élevé</span>':'<span class="pill">faible</span>'; const row=document.createElement('div'); row.className='row'; row.style.gridTemplateColumns='1fr auto'; row.innerHTML=`<div>${it.ts} • Dep:${it.depart} • J:${it.jour} • M:${it.meteo} • Inc:${it.incidents} • V:${it.vitesse} • D:${it.debit} • Dist:${it.dist}km</div><div>${tag} (${it.proba})</div>`; box.appendChild(row);} }
+function exportCSV(){ const arr=JSON.parse(localStorage.getItem(histKey)||"[]"); if(!arr.length){ alert('Historique vide.'); return;} const header=["timestamp","depart_time","jour","meteo","incidents","vitesse","debit","distance_km","risque","proba"]; const rows=[header.join(",")]; for(const x of arr){ rows.push([x.ts,x.depart,x.jour,x.meteo,x.incidents,x.vitesse,x.debit,x.dist,x.risque,x.proba].join(",")); } const blob=new Blob([rows.join("\n")],{type:"text/csv"}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='historique_predictions.csv'; a.click(); URL.revokeObjectURL(url); }
+function clearHist(){ localStorage.removeItem(histKey); renderHist(); }
+// API
+async function predire(){
+  const payload = {
+    heure: getHeureInt(),
+    jour_semaine: jour,
+    meteo: meteo,
+    incidents: incident,
+    vitesse_moyenne: parseFloat(document.getElementById('vitesse').value),
+    debit_vehicules: parseFloat(document.getElementById('debit').value),
+    distance_km: parseFloat(document.getElementById('distAB').textContent) || 0
+  };
+  if(coordsA){ payload.lat_a = coordsA.lat; payload.lon_a = coordsA.lng; }
+  if(coordsB){ payload.lat_b = coordsB.lat; payload.lon_b = coordsB.lng; }
+  try{
+    const r = await fetch(base + '/predire', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const j = await r.json();
+    applyResult(j, payload);
+  }catch(e){ alert('Erreur API'); }
+}
+async function reentrainer(){ await fetch(base + '/reentrainer', {method:'POST'}); alert('Modèle ré-entrainé.'); }
+// Apply result
+function applyResult(j, payload){
+  const p = Math.round(j.proba*100);
+  document.getElementById('gauge').style.setProperty('--p', p);
+  document.getElementById('probVal').textContent = p + '%';
+  const badge = (j.risque === 'élevé') ? '🔥' : '✅';
+  document.getElementById('resume').innerHTML = `Risque : <span class="pill">${j.risque} (${j.proba})</span> ${badge}`;
+  document.getElementById('recos').innerHTML = j.recommandations.map(x=>'<li>'+x+'</li>').join('');
+  const ts = new Date().toLocaleString();
+  const depart = document.getElementById('heure_depart').value || '08:00';
+  addHist({ts, depart, jour: payload.jour_semaine, meteo: payload.meteo, incidents: payload.incidents, vitesse: payload.vitesse_moyenne, debit: payload.debit_vehicules, dist: payload.distance_km, risque: j.risque, proba: j.proba});
+}
+// Presets & Reset
+function preset(name){
+  if(name==='pointe_matin'){ document.getElementById('heure_depart').value='08:00'; document.getElementById('vitesse').value=35; document.getElementById('debit').value=90; setMeteo(0); setIncident(0); }
+  if(name==='pluie'){ document.getElementById('heure_depart').value='07:30'; setMeteo(1); document.getElementById('vitesse').value=40; document.getElementById('debit').value=70; }
+  if(name==='neige_incident'){ document.getElementById('heure_depart').value='17:15'; setMeteo(2); setIncident(1); document.getElementById('vitesse').value=25; document.getElementById('debit').value=60; }
+  if(name==='nuit_calme'){ document.getElementById('heure_depart').value='01:00'; document.getElementById('vitesse').value=60; document.getElementById('debit').value=20; setMeteo(0); setIncident(0); }
+  onTimeChange(); sync('vitesse','vitVal'); sync('debit','debVal');
+}
+function resetForm(){
+  clearPoints();
+  document.getElementById('heure_depart').value='08:00'; onTimeChange();
+  document.getElementById('vitesse').value=45; document.getElementById('debit').value=50;
+  sync('vitesse','vitVal'); sync('debit','debVal');
+  setMeteo(0); setIncident(0); setJour(2);
+}
+// Init
+(function init(){
+  buildJourSeg();
+  onTimeChange(); sync('vitesse','vitVal'); sync('debit','debVal');
+  renderHist();
+  initMap();
+})();
+</script>
+</body>
+</html>
