@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest a new idea or improvement
+title: "[FEATURE] : "
+labels: ["enhancement", "priority-low"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for suggesting improvements that could help the project."
+  - type: input
+    id: description
+    attributes:
+      label: Description
+      description: Summarize the feature in a few words.
+  - type: textarea
+    id: value
+    attributes:
+      label: Added value
+      description: Why is this feature useful for users?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Are there other ways to achieve the same result?

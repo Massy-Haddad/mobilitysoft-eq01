@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a problem or unexpected behavior
+title: "[BUG] : "
+labels: ["bug", "priority-medium"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please fill out this bug report so we can reproduce and fix the issue."
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did the bug occur? (OS, version, etc.)
+      placeholder: "e.g. Windows 11, Node.js v20"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. Observe the result
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What was supposed to happen?
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened?
