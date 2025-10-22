@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import RequestContextMiddleware
 from app.api.v1.endpoints import router as api_v1_router
+from app.database import init_db
 
 logger = setup_logging(settings.LOG_LEVEL)
 
@@ -19,6 +20,12 @@ app = FastAPI(
     redoc_url=None,
     openapi_url=None
 )
+
+@app.on_event("startup")
+def startup_db_client():
+    """Initialise la base de données au démarrage de l'application."""
+    init_db()
+    logger.info("Base de données initialisée")
 
 app.add_middleware(RequestContextMiddleware)
 app.add_middleware(

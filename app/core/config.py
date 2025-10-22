@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     RATE_LIMIT_PER_MIN: int = 60
     MODEL_SEED: int = 42
+    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/mobilitysoft_db"
 
 
 settings = Settings()
