@@ -1,17 +1,21 @@
 """
 Tests pour le modèle de prédiction de trafic
 """
+# pylint: disable=import-error
 import numpy as np
+import pytest
 
 from app.services.model import ModeleTrafic
 
 
+@pytest.mark.unit
 def test_modele_creation():
     """Test de la création du modèle"""
     modele = ModeleTrafic(seed=42)
     assert modele is not None
 
 
+@pytest.mark.unit
 def test_modele_prediction_shape():
     """Test que la prédiction retourne la forme correcte"""
     modele = ModeleTrafic(seed=42)
@@ -21,6 +25,7 @@ def test_modele_prediction_shape():
     assert proba.shape == (1,)
 
 
+@pytest.mark.unit
 def test_modele_prediction_values():
     """Test que la prédiction retourne des valeurs valides"""
     modele = ModeleTrafic(seed=42)
@@ -30,6 +35,7 @@ def test_modele_prediction_values():
     assert 0.0 <= proba[0] <= 1.0  # Probabilité entre 0 et 1
 
 
+@pytest.mark.unit
 def test_modele_reentrainement():
     """Test du ré-entraînement du modèle"""
     modele = ModeleTrafic(seed=42)
@@ -47,6 +53,7 @@ def test_modele_reentrainement():
     assert 0.0 <= proba2[0] <= 1.0
 
 
+@pytest.mark.unit
 def test_modele_predictions_multiples():
     """Test de prédictions multiples"""
     modele = ModeleTrafic(seed=42)

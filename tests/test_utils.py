@@ -5,6 +5,7 @@ Tests pour les fonctions utilitaires
 import pytest
 
 
+@pytest.mark.unit
 def test_haversine_distance():
     """Test de la fonction de calcul de distance haversine"""
     from app.api.v1.endpoints import haversine_km
@@ -18,6 +19,7 @@ def test_haversine_distance():
     assert 1.0 < distance < 1.5
 
 
+@pytest.mark.unit
 def test_haversine_meme_point():
     """Test de la distance haversine entre un point et lui-même"""
     from app.api.v1.endpoints import haversine_km
@@ -26,6 +28,7 @@ def test_haversine_meme_point():
     assert distance == pytest.approx(0.0, abs=0.001)
 
 
+@pytest.mark.unit
 def test_haversine_grande_distance():
     """Test de la distance haversine pour une grande distance"""
     from app.api.v1.endpoints import haversine_km
@@ -39,6 +42,7 @@ def test_haversine_grande_distance():
     assert 5400 < distance < 5600
 
 
+@pytest.mark.unit
 def test_recommandations_risque_eleve():
     """Test des recommandations pour un risque élevé"""
     from app.api.v1.endpoints import recommandations
@@ -61,6 +65,7 @@ def test_recommandations_risque_eleve():
     assert any("vitesse" in rec.lower() or "distance" in rec.lower() for rec in recs)
 
 
+@pytest.mark.unit
 def test_recommandations_risque_faible():
     """Test des recommandations pour un risque faible"""
     from app.api.v1.endpoints import recommandations
@@ -81,6 +86,7 @@ def test_recommandations_risque_faible():
     assert len(recs) > 0
 
 
+@pytest.mark.unit
 def test_recommandations_heure_pointe():
     """Test que les recommandations mentionnent l'heure de pointe"""
     from app.api.v1.endpoints import recommandations

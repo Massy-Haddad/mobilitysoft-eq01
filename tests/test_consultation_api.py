@@ -1,11 +1,14 @@
 """
 Tests pour l'API de consultation des prédictions stockées
 """
+# pylint: disable=import-error
 from datetime import datetime
+import pytest
 
 from app.database import Prediction
 
 
+@pytest.mark.integration
 def test_lire_predictions_vide(client):
     """Test de récupération des prédictions quand la base est vide"""
     response = client.get("/api/v1/predictions")
@@ -15,6 +18,7 @@ def test_lire_predictions_vide(client):
     assert len(data) == 0
 
 
+@pytest.mark.integration
 def test_lire_predictions_avec_donnees(client, db_session):
     """Test de récupération des prédictions avec des données"""
     # Ajouter des prédictions de test
@@ -61,6 +65,7 @@ def test_lire_predictions_avec_donnees(client, db_session):
     assert len(data) == 2
 
 
+@pytest.mark.integration
 def test_lire_predictions_avec_pagination(client, db_session):
     """Test de pagination des prédictions"""
     # Ajouter 5 prédictions de test
@@ -93,6 +98,7 @@ def test_lire_predictions_avec_pagination(client, db_session):
     assert len(data) == 2
 
 
+@pytest.mark.integration
 def test_lire_prediction_par_id_existant(client, db_session):
     """Test de récupération d'une prédiction spécifique par son ID"""
     prediction = Prediction(
@@ -119,6 +125,7 @@ def test_lire_prediction_par_id_existant(client, db_session):
     assert data["distance_km"] == 15.0
 
 
+@pytest.mark.integration
 def test_lire_prediction_par_id_inexistant(client):
     """Test de récupération d'une prédiction avec un ID inexistant"""
     response = client.get("/api/v1/predictions/9999")
@@ -128,6 +135,7 @@ def test_lire_prediction_par_id_inexistant(client):
     assert data["detail"] == "Prédiction non trouvée"
 
 
+@pytest.mark.integration
 def test_lire_predictions_ordre_chronologique(client, db_session):
     """Test que les prédictions sont retournées dans l'ordre chronologique inverse"""
     # pylint: disable=import-outside-toplevel

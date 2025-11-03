@@ -1,8 +1,11 @@
 """
 Tests pour l'endpoint de prédiction de trafic
 """
+# pylint: disable=import-error
+import pytest
 
 
+@pytest.mark.integration
 def test_predire_avec_donnees_valides(client):
     """Test de prédiction avec des données valides"""
     payload = {
@@ -28,6 +31,7 @@ def test_predire_avec_donnees_valides(client):
     assert isinstance(data["recommandations"], list)
 
 
+@pytest.mark.integration
 def test_predire_avec_distance_fournie(client):
     """Test de prédiction avec distance directement fournie"""
     payload = {
@@ -46,6 +50,7 @@ def test_predire_avec_distance_fournie(client):
     assert "proba" in data
 
 
+@pytest.mark.integration
 def test_predire_avec_donnees_invalides_heure(client):
     """Test de prédiction avec une heure invalide"""
     payload = {
@@ -60,6 +65,7 @@ def test_predire_avec_donnees_invalides_heure(client):
     assert response.status_code == 422  # Validation error
 
 
+@pytest.mark.integration
 def test_predire_avec_donnees_invalides_jour(client):
     """Test de prédiction avec un jour invalide"""
     payload = {
@@ -74,6 +80,7 @@ def test_predire_avec_donnees_invalides_jour(client):
     assert response.status_code == 422  # Validation error
 
 
+@pytest.mark.integration
 def test_predire_avec_meteo_invalide(client):
     """Test de prédiction avec météo invalide"""
     payload = {
@@ -88,6 +95,7 @@ def test_predire_avec_meteo_invalide(client):
     assert response.status_code == 422  # Validation error
 
 
+@pytest.mark.integration
 def test_predire_sauvegarde_en_base(client, db_session):
     """Test que la prédiction est bien sauvegardée dans la base de données"""
     # pylint: disable=import-outside-toplevel
