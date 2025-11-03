@@ -1,8 +1,11 @@
 """
 Tests pour les endpoints de base de l'API MobilitySoft
 """
+# pylint: disable=import-error
+import pytest
 
 
+@pytest.mark.integration
 def test_sante_endpoint(client):
     """Test de l'endpoint de santé de l'API"""
     response = client.get("/api/v1/sante")
@@ -13,6 +16,7 @@ def test_sante_endpoint(client):
     assert "nom" in data
 
 
+@pytest.mark.integration
 def test_servir_ui(client):
     """Test de l'endpoint principal qui sert l'interface utilisateur"""
     response = client.get("/")

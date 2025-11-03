@@ -33,37 +33,47 @@ uvicorn app.main:app --reload
 
 ### Pre-commit hooks
 
-Ce projet utilise pre-commit pour garantir la qualité du code. Les hooks configurés incluent :
+Ce projet utilise pre-commit pour garantir la qualité du code avant chaque commit :
 
 - **Black** : Formatage automatique du code
-- **Pylint** : Analyse statique et linting
-- **Pytest** : Exécution des tests unitaires
+- **Pylint** : Analyse statique et linting (score minimum requis)
+- **Pytest** : Exécution automatique de tous les tests
 
-Pour installer les hooks pre-commit :
+Installation des hooks :
 
 ```bash
+# Automatique avec le script
+setup_precommit.bat
+
+# Ou manuellement
 pre-commit install
-```
-
-Pour exécuter manuellement tous les hooks :
-
-```bash
-pre-commit run --all-files
 ```
 
 ### Tests
 
-Pour exécuter les tests unitaires :
+Le projet inclut **25 tests** séparés en deux catégories :
+
+- **Tests unitaires** (11 tests) : Testent les composants isolés (modèle, fonctions utilitaires)
+- **Tests d'intégration** (14 tests) : Testent l'API complète avec base de données
+
+Exécution des tests :
 
 ```bash
-pytest
+# Tous les tests
+tests.bat all
+
+# Tests unitaires uniquement
+tests.bat unit
+
+# Tests d'intégration uniquement
+tests.bat integration
 ```
 
-Pour plus de détails sur les tests et le pre-commit, consultez [TESTING.md](TESTING.md).
+Les tests sont automatiquement exécutés par pre-commit avant chaque commit.
 
 ## Structure du projet
 
-```
+```text
 mobilitysoft-eq01/
 ├── app/
 │   ├── api/v1/          # Endpoints de l'API
@@ -73,7 +83,7 @@ mobilitysoft-eq01/
 │   ├── ui/              # Interface utilisateur
 │   ├── database.py      # Configuration de la base de données
 │   └── main.py          # Point d'entrée de l'application
-├── tests/               # Tests unitaires
+├── tests/               # Tests unitaires et d'intégration
 ├── .pre-commit-config.yaml  # Configuration des hooks pre-commit
 ├── .pylintrc            # Configuration Pylint
 ├── pytest.ini           # Configuration Pytest
