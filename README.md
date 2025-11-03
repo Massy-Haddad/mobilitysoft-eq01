@@ -28,3 +28,54 @@ uvicorn app.main:app --reload
 - `GET /api/v1/sante` : statut du service.
 - `GET /api/v1/predictions` : récupère l'historique des prédictions avec options de filtrage (skip, limit, date_debut, date_fin).
 - `GET /api/v1/predictions/{id}` : récupère une prédiction spécifique avec son ID.
+
+## Développement
+
+### Pre-commit hooks
+
+Ce projet utilise pre-commit pour garantir la qualité du code. Les hooks configurés incluent :
+
+- **Black** : Formatage automatique du code
+- **Pylint** : Analyse statique et linting
+- **Pytest** : Exécution des tests unitaires
+
+Pour installer les hooks pre-commit :
+
+```bash
+pre-commit install
+```
+
+Pour exécuter manuellement tous les hooks :
+
+```bash
+pre-commit run --all-files
+```
+
+### Tests
+
+Pour exécuter les tests unitaires :
+
+```bash
+pytest
+```
+
+Pour plus de détails sur les tests et le pre-commit, consultez [TESTING.md](TESTING.md).
+
+## Structure du projet
+
+```
+mobilitysoft-eq01/
+├── app/
+│   ├── api/v1/          # Endpoints de l'API
+│   ├── core/            # Configuration et middlewares
+│   ├── models/          # Schémas Pydantic
+│   ├── services/        # Modèle de prédiction
+│   ├── ui/              # Interface utilisateur
+│   ├── database.py      # Configuration de la base de données
+│   └── main.py          # Point d'entrée de l'application
+├── tests/               # Tests unitaires
+├── .pre-commit-config.yaml  # Configuration des hooks pre-commit
+├── .pylintrc            # Configuration Pylint
+├── pytest.ini           # Configuration Pytest
+└── requirements.txt     # Dépendances Python
+```

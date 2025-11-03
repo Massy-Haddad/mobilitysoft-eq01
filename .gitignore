@@ -9,10 +9,26 @@ venv/
 .env/
 .venv/
 
-
 # IDE / Editor settings
 .vscode/
 .idea/
 *.swp
 
-__init__.py
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+mobilitysoft.db
+
+# Environment variables
+.env
+
+# Pre-commit
+.pre-commit-cache/
