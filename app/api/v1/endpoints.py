@@ -1,10 +1,12 @@
 # app/api/v1/endpoints.py
-from fastapi import APIRouter, Request, Depends, HTTPException
-from sqlalchemy.orm import Session
-import numpy as np
 import math
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
+
+import numpy as np
+from fastapi import APIRouter, Request, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.rate_limit import limiter
@@ -57,33 +59,40 @@ async def predire(request: Request, entree: EntreePrediction, db: Session = Depe
     limiter.check(request)
     # Calcul distance si non fournie mais lat/lon présents
     dist = entree.distance_km
-    if dist is None and all(v is not None for v in [entree.lat_a, entree.lon_a, entree.lat_b, entree.lon_b]):
+    if dist is None and all(
+        v is not None for v in [entree.lat_a, entree.lon_a, entree.lat_b, entree.lon_b]
+    ):
         try:
             dist = haversine_km(entree.lat_a, entree.lon_a, entree.lat_b, entree.lon_b)
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             dist = 0.0
     if dist is None:
         dist = 0.0
 
-    X = np.array([[
-        float(entree.heure),
-        float(entree.jour_semaine),
-        float(entree.meteo),
-        float(entree.incidents),
-        float(entree.vitesse_moyenne),
-        float(entree.debit_vehicules),
-        float(dist),
-    ]], dtype=float)
+    X = np.array(
+        [
+            [
+                float(entree.heure),
+                float(entree.jour_semaine),
+                float(entree.meteo),
+                float(entree.incidents),
+                float(entree.vitesse_moyenne),
+                float(entree.debit_vehicules),
+                float(dist),
+            ]
+        ],
+        dtype=float,
+    )
 
     y, proba = MODELE.predire(X)
     p = float(proba[0])
     niveau = "élevé" if y[0] == 1 else "faible"
     recos = recommandations(entree, p, y[0])
-    
+
     # Sauvegarder les données de prédiction dans la base de données
     vitesse_prevue = entree.vitesse_moyenne * (1.0 - 0.2 * float(y[0]))  # Estimation simple
     temps_trajet = dist / vitesse_prevue * 60 if vitesse_prevue > 0 else 0  # minutes
-    
+
     nouvelle_prediction = Prediction(
         lat_depart=entree.lat_a,
         lon_depart=entree.lon_a,
@@ -98,12 +107,12 @@ async def predire(request: Request, entree: EntreePrediction, db: Session = Depe
         debit_vehicules=entree.debit_vehicules,
         vitesse_prevue=vitesse_prevue,
         temps_trajet_prevu=temps_trajet,
-        timestamp=datetime.now()
+        timestamp=datetime.now(),
     )
-    
+
     db.add(nouvelle_prediction)
     db.commit()
-    
+
     return SortiePrediction(risque=niveau, proba=round(p, 3), recommandations=recos)
 
 
@@ -115,8 +124,6 @@ async def reentrainer(request: Request, seed: int | None = None):
 
 
 # Modèle Pydantic pour la sortie des prédictions stockées
-from pydantic import BaseModel
-
 class PredictionOutput(BaseModel):
     id: int
     lat_depart: Optional[float]
@@ -133,7 +140,7 @@ class PredictionOutput(BaseModel):
     vitesse_prevue: float
     temps_trajet_prevu: float
     timestamp: datetime
-    
+
     class Config:
         orm_mode = True
 
@@ -141,11 +148,11 @@ class PredictionOutput(BaseModel):
 @router.get("/predictions", response_model=List[PredictionOutput])
 async def lire_predictions(
     request: Request,
-    skip: int = 0, 
+    skip: int = 0,
     limit: int = 100,
     date_debut: Optional[datetime] = None,
     date_fin: Optional[datetime] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Récupère les prédictions sauvegardées dans la base de données.
@@ -153,22 +160,18 @@ async def lire_predictions(
     """
     limiter.check(request)
     query = db.query(Prediction)
-    
+
     if date_debut:
         query = query.filter(Prediction.timestamp >= date_debut)
-    
+
     if date_fin:
         query = query.filter(Prediction.timestamp <= date_fin)
-    
+
     return query.order_by(Prediction.timestamp.desc()).offset(skip).limit(limit).all()
 
 
 @router.get("/predictions/{prediction_id}", response_model=PredictionOutput)
-async def lire_prediction(
-    request: Request,
-    prediction_id: int, 
-    db: Session = Depends(get_db)
-):
+async def lire_prediction(request: Request, prediction_id: int, db: Session = Depends(get_db)):
     """
     Récupère une prédiction spécifique par son ID.
     """

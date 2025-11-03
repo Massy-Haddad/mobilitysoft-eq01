@@ -1,0 +1,72 @@
+[MASTER]
+# Liste des modules à ignorer
+ignore=.venv,__pycache__,.git
+
+# Utiliser plusieurs processus pour accélérer Pylint
+jobs=1
+
+# Fichiers ou répertoires à ajouter au path Python
+init-hook='import sys; sys.path.append(".")'
+
+[MESSAGES CONTROL]
+# Désactiver certains messages trop stricts pour ce projet
+disable=
+    C0111,  # missing-docstring
+    C0103,  # invalid-name
+    R0903,  # too-few-public-methods
+    R0913,  # too-many-arguments
+    W0511,  # fixme
+    R0801,  # duplicate-code
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0902,  # too-many-instance-attributes
+    R0914,  # too-many-locals
+    W1203,  # logging-fstring-interpolation
+
+[FORMAT]
+# Longueur maximale de ligne
+max-line-length=100
+
+# Nombre maximum de lignes dans un module
+max-module-lines=1000
+
+# Chaîne d'indentation
+indent-string='    '
+
+[DESIGN]
+# Nombre maximum d'arguments pour une fonction
+max-args=10
+
+# Nombre maximum d'attributs pour une classe
+max-attributes=10
+
+# Nombre minimum de lignes publiques dans un module
+min-public-methods=0
+
+# Nombre maximum de parents pour une classe
+max-parents=7
+
+[SIMILARITIES]
+# Nombre minimum de lignes similaires pour détecter du code dupliqué
+min-similarity-lines=4
+
+# Ignorer les commentaires lors de la détection de similitudes
+ignore-comments=yes
+
+# Ignorer les docstrings lors de la détection de similitudes
+ignore-docstrings=yes
+
+[IMPORTS]
+# Graphique de dépendances
+import-graph=
+
+# Graphique externe de dépendances
+ext-import-graph=
+
+# Graphique interne de dépendances
+int-import-graph=
+
+[EXCEPTIONS]
+# Exceptions pouvant être capturées
+overgeneral-exceptions=builtins.Exception

@@ -19,8 +19,11 @@ class RateLimiter:
         self.buckets[ip] = (count, reset)
         if count > self.per_minute:
             retry = int(reset - now)
-            raise HTTPException(status_code=429, detail="Trop de requêtes. Réessayez plus tard.",
-                                headers={"Retry-After": str(max(1, retry))})
+            raise HTTPException(
+                status_code=429,
+                detail="Trop de requêtes. Réessayez plus tard.",
+                headers={"Retry-After": str(max(1, retry))},
+            )
 
 
 limiter = RateLimiter()

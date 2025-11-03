@@ -2,6 +2,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
+
 class EntreePrediction(BaseModel):
     # Caractéristiques temporelles / conditions
     heure: int = Field(ge=0, le=23, description="Heure (0-23)")
@@ -17,6 +18,7 @@ class EntreePrediction(BaseModel):
     lat_b: Optional[float] = Field(default=None, description="Latitude point B")
     lon_b: Optional[float] = Field(default=None, description="Longitude point B")
     distance_km: Optional[float] = Field(default=None, description="Distance A–B (km)")
+
 
 class SortiePrediction(BaseModel):
     risque: str

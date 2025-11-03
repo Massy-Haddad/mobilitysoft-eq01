@@ -15,17 +15,24 @@ logger = setup_logging(settings.LOG_LEVEL)
 app = FastAPI(
     title=settings.APP_NAME,
     version="1.4.0",
-    openapi_tags=[{"name": "Prédiction de trafic", "description": "API de prédiction + carte + heure de départ."}],
+    openapi_tags=[
+        {
+            "name": "Prédiction de trafic",
+            "description": "API de prédiction + carte + heure de départ.",
+        }
+    ],
     docs_url=None,
     redoc_url=None,
-    openapi_url=None
+    openapi_url=None,
 )
+
 
 @app.on_event("startup")
 def startup_db_client():
     """Initialise la base de données au démarrage de l'application."""
     init_db()
     logger.info("Base de données initialisée")
+
 
 app.add_middleware(RequestContextMiddleware)
 app.add_middleware(
@@ -40,6 +47,7 @@ app.include_router(api_v1_router)
 
 UI_DIR = Path(__file__).parent / "ui"
 INDEX_PATH = UI_DIR / "index.html"
+
 
 @app.get("/", include_in_schema=False)
 async def servir_ui():

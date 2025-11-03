@@ -1,5 +1,10 @@
 # app/core/logging.py
-import json, logging, sys, time
+# pylint: disable=no-member,import-self
+import json
+import logging
+import sys
+import time
+
 
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
@@ -12,6 +17,7 @@ class JsonFormatter(logging.Formatter):
         if record.exc_info:
             payload["exc_info"] = self.formatException(record.exc_info)
         return json.dumps(payload, ensure_ascii=False)
+
 
 def setup_logging(level: str = "INFO"):
     h = logging.StreamHandler(sys.stdout)
