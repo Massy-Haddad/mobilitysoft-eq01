@@ -12,7 +12,7 @@ env:
 jobs:
   # Étape 1: Tests d'intégration
   test:
-    name: test
+    name: test d'intégration
     runs-on: ubuntu-latest
     
     services:
