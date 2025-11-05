@@ -1,0 +1,39 @@
+services:
+  # Service PostgreSQL pour la base de données
+  db:
+    image: postgres:15-alpine
+    container_name: mobilitysoft_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mobilitysoft_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Service de l'application MobilitySoft
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mobilitysoft_app
+    ports:
+      - "9000:9000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/mobilitysoft_db
+      LOG_LEVEL: INFO
+      RATE_LIMIT_PER_MIN: 60
+      MODEL_SEED: 42
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data: 

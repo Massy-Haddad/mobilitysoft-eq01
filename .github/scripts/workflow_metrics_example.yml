@@ -1,0 +1,93 @@
+# Exemple d'utilisation du script send_metrics.py dans le workflow ci-cd.yml
+#
+# Ajoutez ces étapes dans le job "metrics" après la collecte des résultats
+
+# Job 3: Envoi des métriques CI (avec vraie intégration)
+metrics:
+  name: Envoi des métriques CI
+  needs: [tests, docker]
+  runs-on: ubuntu-latest
+  if: always() && github.event_name == 'push'
+  
+  steps:
+  - name: Checkout du code
+    uses: actions/checkout@v4
+
+  - name: Configuration de Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: '3.11'
+
+  - name: Installation de requests
+    run: pip install requests
+
+  - name: Préparation des métriques
+    id: prepare
+    run: |
+      # Extraire les résultats des tests (exemple simplifié)
+      # En production, vous devriez parser les vrais résultats
+      echo "TEST_RESULTS={\"total\":25,\"passed\":25,\"failed\":0,\"skipped\":0,\"duration\":45,\"coverage\":85,\"pylint_score\":9.5,\"black_formatted\":true,\"pre_commit_passed\":true}" >> $GITHUB_ENV
+      
+      # Extraire les résultats du build
+      # Tags créés par le job docker
+      TAGS=$(echo '${{ needs.docker.outputs.tags }}' | jq -R 'split(",")' || echo '["latest"]')
+      BUILD_SUCCESS=$([[ "${{ needs.docker.result }}" == "success" ]] && echo "true" || echo "false")
+      
+      echo "BUILD_RESULTS={\"success\":${BUILD_SUCCESS},\"duration\":120,\"image_size_mb\":450,\"tags\":${TAGS},\"dockerhub_push\":true,\"push_duration\":30}" >> $GITHUB_ENV
+      
+      # Message du commit
+      echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B | head -n1)" >> $GITHUB_ENV
+
+  - name: Envoi vers l'application Metrics
+    env:
+      METRICS_API_URL: ${{ secrets.METRICS_API_URL }}
+      METRICS_API_KEY: ${{ secrets.METRICS_API_KEY }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF_NAME: ${{ github.ref_name }}
+      GITHUB_SHA: ${{ github.sha }}
+      GITHUB_ACTOR: ${{ github.actor }}
+    run: |
+      python .github/scripts/send_metrics.py
+
+  - name: Résumé des métriques
+    if: always()
+    run: |
+      echo "## 📊 Résumé des métriques CI/CD" >> $GITHUB_STEP_SUMMARY
+      echo "" >> $GITHUB_STEP_SUMMARY
+      echo "### Tests" >> $GITHUB_STEP_SUMMARY
+      echo "- ✅ Statut: ${{ needs.tests.result }}" >> $GITHUB_STEP_SUMMARY
+      echo "- 🧪 Tests: 25 total" >> $GITHUB_STEP_SUMMARY
+      echo "" >> $GITHUB_STEP_SUMMARY
+      echo "### Build Docker" >> $GITHUB_STEP_SUMMARY
+      echo "- ✅ Statut: ${{ needs.docker.result }}" >> $GITHUB_STEP_SUMMARY
+      echo "- 🐋 Image poussée sur DockerHub" >> $GITHUB_STEP_SUMMARY
+      echo "" >> $GITHUB_STEP_SUMMARY
+      echo "### 📈 Métriques envoyées à l'application Metrics" >> $GITHUB_STEP_SUMMARY
+
+
+# ALTERNATIVE SIMPLE : Envoi direct avec curl (sans script Python)
+#
+# - name: Envoi vers l'application Metrics (version simple)
+#   if: success()
+#   run: |
+#     curl -X POST ${{ secrets.METRICS_API_URL }} \
+#       -H "Content-Type: application/json" \
+#       -H "Authorization: Bearer ${{ secrets.METRICS_API_KEY }}" \
+#       -d '{
+#         "project": "mobilitysoft",
+#         "branch": "${{ github.ref_name }}",
+#         "commit_sha": "${{ github.sha }}",
+#         "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+#         "metrics": {
+#           "tests": {
+#             "total": 25,
+#             "passed": 25,
+#             "failed": 0,
+#             "duration_seconds": 45
+#           },
+#           "build": {
+#             "success": true,
+#             "duration_seconds": 120
+#           }
+#         }
+#       }' || echo "Échec de l'envoi des métriques (non bloquant)"
