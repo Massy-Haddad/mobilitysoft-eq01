@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, "CI/CD" ]
+    branches: [ main, master, develop, "CI/CD" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, master, develop ]
 
 env:
   DOCKER_IMAGE_NAME: mobilitysoft
@@ -57,7 +57,7 @@ jobs:
     name: build
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     
     steps:
     - name: Checkout du code
@@ -89,7 +89,7 @@ jobs:
     name: push
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     
     steps:
     - name: Checkout du code
