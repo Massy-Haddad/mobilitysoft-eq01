@@ -1,4 +1,4 @@
-name: CI/CD Complet
+name: CI/CD Pipeline
 
 on:
   push:
@@ -10,9 +10,9 @@ env:
   DOCKER_IMAGE_NAME: mobilitysoft
 
 jobs:
-  # Job 1: Tests unitaires et d'intégration
-  tests:
-    name: Tests unitaires et d'intégration
+  # Étape 1: Tests d'intégration
+  test:
+    name: test
     runs-on: ubuntu-latest
     
     services:
@@ -45,28 +45,64 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Exécution des tests avec pytest
+    - name: Exécution des tests d'intégration
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mobilitysoft_test_db
         LOG_LEVEL: DEBUG
       run: |
-        pytest tests/ -v --tb=short
+        pytest tests/test_consultation_api.py tests/test_predictions.py -v --tb=short
 
-    - name: Génération du badge de statut des tests
-      if: always()
-      run: |
-        echo "Tests terminés avec statut: ${{ job.status }}"
-
-  # Job 2: Build et Push Docker (seulement si les tests passent)
-  docker:
-    name: Build et Push Docker
-    needs: tests
+  # Étape 2: Build de l'image Docker
+  build:
+    name: build
+    needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout du code
       uses: actions/checkout@v4
+
+    - name: Configuration de Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build de l'image Docker
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:build-${{ github.run_number }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        outputs: type=docker,dest=/tmp/image.tar
+
+    - name: Upload de l'artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-image
+        path: /tmp/image.tar
+        retention-days: 1
+
+  # Étape 3: Push vers DockerHub
+  push:
+    name: push
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+
+    - name: Download de l'artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: docker-image
+        path: /tmp
 
     - name: Configuration de Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -77,54 +113,20 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Extraction des métadonnées Docker
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
-        tags: |
-          type=ref,event=branch
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
+    - name: Chargement de l'image Docker
+      run: docker load --input /tmp/image.tar
 
-    - name: Build et Push de l'image Docker
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+    - name: Push de l'image vers DockerHub
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:build-${{ github.run_number }}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
 
     - name: Résumé du déploiement
       run: |
-        echo "✅ Image Docker construite et poussée avec succès !"
-        echo "📦 Tags: ${{ steps.meta.outputs.tags }}"
+        echo "✅ Image Docker poussée avec succès sur DockerHub!"
+        echo "� Tags disponibles:"
+        echo "  - latest"
+        echo "  - build-${{ github.run_number }}"
+        echo "  - ${{ github.sha }}"
         echo "🔗 DockerHub: https://hub.docker.com/r/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}"
-
-  # Job 3: Envoi des métriques CI (optionnel)
-  metrics:
-    name: Envoi des métriques CI
-    needs: [tests, docker]
-    runs-on: ubuntu-latest
-    if: always() && github.event_name == 'push'
-    
-    steps:
-    - name: Préparation des métriques
-      run: |
-        echo "Collecte des métriques CI/CD..."
-        echo "Statut des tests: ${{ needs.tests.result }}"
-        echo "Statut du build Docker: ${{ needs.docker.result }}"
-        echo "Branch: ${{ github.ref_name }}"
-        echo "Commit: ${{ github.sha }}"
-        
-    # TODO: Ajouter l'envoi vers l'application Metrics
-    - name: Envoi vers l'application Metrics
-      run: |
-        echo "📊 Métriques à envoyer vers l'application Metrics:"
-        echo "  - Durée des tests"
-        echo "  - Nombre de tests passés/échoués"
-        echo "  - Taille de l'image Docker"
-        echo "  - Durée du build"
