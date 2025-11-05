@@ -1,0 +1,99 @@
+@startuml architecture-globale
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+title Architecture Globale - MobilitySoft CI/CD
+
+' Définition des couleurs
+skinparam rectangle {
+    BackgroundColor<<github>> #24292E
+    BorderColor<<github>> #000000
+    FontColor<<github>> #FFFFFF
+    
+    BackgroundColor<<cicd>> #2088FF
+    BorderColor<<cicd>> #0366D6
+    FontColor<<cicd>> #FFFFFF
+    
+    BackgroundColor<<docker>> #2496ED
+    BorderColor<<docker>> #0DB7ED
+    FontColor<<docker>> #FFFFFF
+    
+    BackgroundColor<<runtime>> #00D084
+    BorderColor<<runtime>> #00A86B
+    FontColor<<runtime>> #FFFFFF
+    
+    BackgroundColor<<service>> #FFA500
+    BorderColor<<service>> #FF8C00
+}
+
+' GitHub Repository
+rectangle "GitHub Repository\nmobilitysoft-eq01" as github <<github>> {
+}
+
+' GitHub Actions Pipeline
+rectangle "GitHub Actions (CI/CD)" as cicd <<cicd>> {
+    rectangle "Job 1:\nTests" as tests
+    rectangle "Job 2:\nBuild Docker" as build
+    rectangle "Job 3:\nMétriques" as metrics
+    
+    tests -right-> build : "tests réussis"
+    build -right-> metrics : "build terminé"
+}
+
+' DockerHub Registry
+rectangle "DockerHub Registry" as dockerhub <<docker>> {
+    component "mobilitysoft:latest" as image_latest
+    component "mobilitysoft:main-{sha}" as image_sha
+}
+
+' Environnement d'exécution
+rectangle "Environnement d'Exécution" as runtime <<runtime>> {
+    rectangle "Container App" as app_container <<service>> {
+        component "MobilitySoft\nFastAPI" as app
+    }
+    
+    rectangle "Container DB" as db_container <<service>> {
+        database "PostgreSQL 15" as postgres
+    }
+    
+    app -down-> postgres : "connexion\nSQL"
+}
+
+' Relations principales
+github -down-> cicd : "Push / Pull Request"
+cicd -down-> dockerhub : "Push Image"
+dockerhub -down-> runtime : "Pull & Deploy"
+
+' Notes explicatives
+note right of github
+  • Code source Python
+  • Workflows GitHub Actions
+  • Pre-commit hooks
+  • Tests (25 tests)
+end note
+
+note right of cicd
+  • Tests unitaires (11)
+  • Tests intégration (14)
+  • Build image Docker
+  • Push vers DockerHub
+  • Collecte métriques
+end note
+
+note right of dockerhub
+  • Registry public/privé
+  • Tags automatiques
+  • Versioning
+  • Cache layers
+end note
+
+note right of runtime
+  • docker-compose.yml
+  • Volumes persistants
+  • Réseau Docker
+  • Health checks
+end note
+
+@enduml

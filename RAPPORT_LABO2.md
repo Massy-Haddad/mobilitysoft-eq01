@@ -1,12 +1,92 @@
-# Rapport Final - Labo 2 : DevOps et CI/CD pour MobilitySoft
+<!-- Page de présentation -->
+<div align="center">
 
-**Cours** : LOG680 - Gestion de projet logiciel  
-**Équipe** : eq1  
-**Date** : Le 5 novembre 2025 
-**Membres** :
-- Massy Haddad - [Matricule]
-- Taha Beniffou - [Matricule]
-- Nilaxsan Tharmalingam - THAN63370001
+<!-- Titre du document (18 pts) -->
+<center>
+<h1 style="font-size:18pt;">
+Labo 2 : DevOps et CI/CD pour MobilitySoft
+</h1>
+</center>
+
+<!-- 4 retours à interligne simple (18 pts) -->
+<br>
+<br>
+<br>
+<br>
+
+<!-- (16 pts) -->
+<center>
+<h2 style="font-size:16pt;">
+PAR
+</h2>
+</center>
+
+<!-- 2 retours à interligne simple (16 pts) -->
+<br>
+<br>
+
+<!-- Prénom et NOM DE FAMILLE, CODE PERMANENT (16 pts) -->
+<center>
+<h2 style="font-size:16pt;">
+MASSY HADDAD, 
+TAHA BENIFFOU, 
+Nilaxsan THARMALINGAM, THAN63370001 
+</h2>
+</center>
+
+<!-- 6* retours à interligne simple (16 pts) -->
+<!-- * Devrait être 5 retours -->
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<!-- Note de présentation (14 pts) -->
+<center>
+<h3 style="font-size:14pt;">
+RAPPORT DE LABORATOIRE PRÉSENTÉ À MONSIEUR FABIO PETRILLO DANS LE CADRE DU COURS <em>ARCHITECTURE LOGICIELLE</em> (LOG430-02)
+</h3>
+</center>
+
+<!-- 5 retours à interligne simple (14 pts) -->
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<!-- Date de remise (14 pts) -->
+<center>
+<h3 style="font-size:14pt;">
+MONTRÉAL, LE 05 NOVEMBRE 2025
+</h3>
+</center>
+
+<!-- 5 retours à interligne simple (14 pts) -->
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<!-- Date de présentation (14 pts) -->
+<center>
+<h3 style="font-size:14pt;">
+ÉCOLE DE TECHNOLOGIE SUPÉRIEURE<br>
+UNIVERSITÉ DU QUÉBEC
+</h3>
+</center>
+
+<!-- 5 retours à interligne simple (14 pts) -->
+<br>
+<br>
+<br>
+<br>
+<br>
+
+</div>
 
 ---
 
@@ -47,40 +127,21 @@ L'application MobilitySoft est un système de prédiction de trafic développé 
 
 ### 2.1 Architecture globale
 
-```
-┌─────────────────────────────────────────────────┐
-│              GitHub Repository                   │
-│         (mobilitysoft-eq{X})                    │
-└────────────┬────────────────────────────────────┘
-             │
-             │ Push/PR
-             ▼
-┌─────────────────────────────────────────────────┐
-│           GitHub Actions (CI/CD)                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │  Tests   │→ │  Build   │→ │ Metrics  │     │
-│  └──────────┘  └──────────┘  └──────────┘     │
-└────────────┬────────────────────────────────────┘
-             │
-             │ Push Image
-             ▼
-┌─────────────────────────────────────────────────┐
-│              DockerHub Registry                  │
-│        (user/mobilitysoft:latest)               │
-└─────────────────────────────────────────────────┘
-             │
-             │ Pull & Deploy
-             ▼
-┌─────────────────────────────────────────────────┐
-│          Environnement d'exécution              │
-│  ┌────────────────┐    ┌──────────────────┐   │
-│  │  MobilitySoft  │←→  │   PostgreSQL     │   │
-│  │  (Container)   │    │   (Container)    │   │
-│  └────────────────┘    └──────────────────┘   │
-└─────────────────────────────────────────────────┘
-```
+Le diagramme ci-dessous illustre l'architecture globale du système CI/CD de MobilitySoft :
 
-[TODO: Insérer un diagramme d'architecture créé avec draw.io ou similaire]
+![Architecture Globale](out/diagrammes/architecture-globale/architecture-globale.svg)
+
+**Flux de déploiement** :
+1. Le développeur pousse du code vers GitHub
+2. GitHub Actions déclenche le pipeline CI/CD (3 jobs)
+3. Les tests s'exécutent (25 tests unitaires et d'intégration)
+4. Si les tests passent, l'image Docker est construite
+5. L'image est poussée vers DockerHub avec tags automatiques
+6. Les métriques CI/CD sont collectées et envoyées vers l'application Metrics
+7. L'environnement d'exécution peut alors pull l'image et la déployer
+
+**Note** : Les diagrammes PlantUML source sont disponibles dans le dossier `diagrammes/`.
+
 
 ### 2.2 Composants principaux
 
@@ -144,11 +205,11 @@ services:
 ```
 
 **Avantages** :
-- ✅ Démarrage simplifié avec une seule commande
-- ✅ Isolation des services
-- ✅ Réseau Docker automatique entre services
-- ✅ Volumes persistants pour les données
-- ✅ Health checks pour garantir la disponibilité
+-  Démarrage simplifié avec une seule commande
+-  Isolation des services
+-  Réseau Docker automatique entre services
+-  Volumes persistants pour les données
+-  Health checks pour garantir la disponibilité
 
 ### 3.3 Tests de conteneurisation
 
@@ -158,10 +219,10 @@ services:
 - Screenshot de l'application accessible sur http://localhost:8000
 
 **Résultats** :
-- ✅ Les conteneurs démarrent sans erreur
-- ✅ L'application se connecte à PostgreSQL
-- ✅ Les données persistent après redémarrage
-- ✅ Temps de démarrage : ~10 secondes
+-  Les conteneurs démarrent sans erreur
+-  L'application se connecte à PostgreSQL
+-  Les données persistent après redémarrage
+-  Temps de démarrage : ~10 secondes
 
 ---
 
@@ -203,21 +264,21 @@ repos:
 ```
 
 **Bénéfices** :
-- ✅ Détection précoce des problèmes
-- ✅ Code formaté automatiquement
-- ✅ Standards de qualité garantis
-- ✅ Réduction des allers-retours en revue de code
+-  Détection précoce des problèmes
+-  Code formaté automatiquement
+-  Standards de qualité garantis
+-  Réduction des allers-retours en revue de code
 
 ### 4.3 Résultats des tests
 
 [TODO: Insérer une capture d'écran du workflow GitHub Actions "Tests"]
 
 **Statistiques** :
-- ✅ 25 tests au total
-- ✅ 11 tests unitaires
-- ✅ 14 tests d'intégration
-- ✅ Couverture de code : ~85%
-- ✅ Score Pylint : 9.5/10
+-  25 tests au total
+-  11 tests unitaires
+-  14 tests d'intégration
+-  Couverture de code : ~85%
+-  Score Pylint : 9.5/10
 
 ---
 
@@ -265,9 +326,9 @@ Code Push → Tests → Build Docker → Push DockerHub → Métriques
 ```
 
 **Sécurité** :
-- ✅ Build Docker uniquement si les tests passent
-- ✅ Push uniquement sur branches protégées (main, develop)
-- ✅ Tokens stockés dans les secrets GitHub
+-  Build Docker uniquement si les tests passent
+-  Push uniquement sur branches protégées (main, develop)
+-  Tokens stockés dans les secrets GitHub
 
 ---
 
@@ -410,19 +471,19 @@ GitHub Actions → HTTP POST → Metrics API → Dashboard
 ### 9.1 Bénéfices observés
 
 **Automatisation** :
-- ✅ Gain de temps : 30 minutes → 5 minutes par déploiement
-- ✅ Réduction des erreurs humaines
-- ✅ Feedback rapide sur la qualité du code
+-  Gain de temps : 30 minutes → 5 minutes par déploiement
+-  Réduction des erreurs humaines
+-  Feedback rapide sur la qualité du code
 
 **Qualité** :
-- ✅ Tests exécutés systématiquement
-- ✅ Code formaté uniformément
-- ✅ Standards de qualité garantis
+-  Tests exécutés systématiquement
+-  Code formaté uniformément
+-  Standards de qualité garantis
 
 **Collaboration** :
-- ✅ Intégration plus facile des contributions
-- ✅ Moins de conflits lors des merges
-- ✅ Historique clair des changements
+-  Intégration plus facile des contributions
+-  Moins de conflits lors des merges
+-  Historique clair des changements
 
 ### 9.2 Pratiques DevOps appliquées
 
@@ -460,12 +521,12 @@ GitHub Actions → HTTP POST → Metrics API → Dashboard
 
 Ce laboratoire a permis de mettre en place avec succès une infrastructure DevOps complète pour l'application MobilitySoft :
 
-✅ **Conteneurisation** : Docker + Docker Compose opérationnels  
-✅ **CI/CD** : Pipeline complet avec GitHub Actions  
-✅ **Tests** : 25 tests automatisés (unitaires + intégration)  
-✅ **Qualité** : Pre-commit hooks + analyse statique  
-✅ **Documentation** : README, SETUP, QUICKSTART complets  
-✅ **Métriques** : Collecte et visualisation des données CI/CD  
+ **Conteneurisation** : Docker + Docker Compose opérationnels  
+ **CI/CD** : Pipeline complet avec GitHub Actions  
+ **Tests** : 25 tests automatisés (unitaires + intégration)  
+ **Qualité** : Pre-commit hooks + analyse statique  
+ **Documentation** : README, SETUP, QUICKSTART complets  
+ **Métriques** : Collecte et visualisation des données CI/CD  
 
 ### 10.2 Apprentissages clés
 
