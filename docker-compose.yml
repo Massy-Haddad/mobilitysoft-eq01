@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     container_name: mobilitysoft_app
     ports:
-      - "8000:8000"
+      - "9000:9000"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/mobilitysoft_db
       LOG_LEVEL: INFO
@@ -36,4 +36,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  postgres_data: 
