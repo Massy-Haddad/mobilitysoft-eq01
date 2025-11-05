@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, master, develop, "CI/CD" ]
+    branches: [ main, develop, "CI/CD" ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, develop ]
 
 env:
   DOCKER_IMAGE_NAME: mobilitysoft
@@ -57,7 +57,7 @@ jobs:
     name: build
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout du code
@@ -72,16 +72,13 @@ jobs:
         context: .
         file: ./Dockerfile
         push: false
-        tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:build-${{ github.run_number }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
         outputs: type=docker,dest=/tmp/image.tar
 
     - name: Upload de l'artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: docker-image
         path: /tmp/image.tar
@@ -92,14 +89,14 @@ jobs:
     name: push
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout du code
       uses: actions/checkout@v4
 
     - name: Download de l'artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: docker-image
         path: /tmp
@@ -115,6 +112,11 @@ jobs:
 
     - name: Chargement de l'image Docker
       run: docker load --input /tmp/image.tar
+
+    - name: Tag des images supplémentaires
+      run: |
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:build-${{ github.run_number }}
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
 
     - name: Push de l'image vers DockerHub
       run: |
