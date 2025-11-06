@@ -28,9 +28,11 @@ PAR
 <!-- Prénom et NOM DE FAMILLE, CODE PERMANENT (16 pts) -->
 <center>
 <h2 style="font-size:16pt;">
-MASSY HADDAD, 
-TAHA BENIFFOU, 
-Nilaxsan THARMALINGAM, THAN63370001 
+MASSY HADDAD, HADM81090107 
+<br>
+TAHA BENIFFOU, BENT80060007
+<br>
+NILAXSAN THARMALINGAM, THAN63370001 
 </h2>
 </center>
 
@@ -46,7 +48,7 @@ Nilaxsan THARMALINGAM, THAN63370001
 <!-- Note de présentation (14 pts) -->
 <center>
 <h3 style="font-size:14pt;">
-RAPPORT DE LABORATOIRE PRÉSENTÉ À MONSIEUR FABIO PETRILLO DANS LE CADRE DU COURS <em>ARCHITECTURE LOGICIELLE</em> (LOG430-02)
+RAPPORT DE LABORATOIRE PRÉSENTÉ À MONSIEUR MOHAMMED SAYAGH DANS LE CADRE DU COURS INTRODUCTION À L'APPROCHE DEVOPS (LOG680-01)
 </h3>
 </center>
 
@@ -60,7 +62,7 @@ RAPPORT DE LABORATOIRE PRÉSENTÉ À MONSIEUR FABIO PETRILLO DANS LE CADRE DU CO
 <!-- Date de remise (14 pts) -->
 <center>
 <h3 style="font-size:14pt;">
-MONTRÉAL, LE 05 NOVEMBRE 2025
+MONTRÉAL, LE 06 NOVEMBRE 2025
 </h3>
 </center>
 
@@ -88,558 +90,88 @@ UNIVERSITÉ DU QUÉBEC
 
 </div>
 
----
-
-## Table des matières
-
-1. [Introduction](#1-introduction)
-2. [Architecture de l'application](#2-architecture-de-lapplication)
-3. [Conteneurisation avec Docker](#3-conteneurisation-avec-docker)
-4. [Intégration Continue (CI)](#4-intégration-continue-ci)
-5. [Déploiement Continu (CD)](#5-déploiement-continu-cd)
-6. [Tests et Qualité du Code](#6-tests-et-qualité-du-code)
-7. [Métriques CI/CD](#7-métriques-cicd)
-8. [Défis Rencontrés et Solutions](#8-défis-rencontrés-et-solutions)
-9. [Réflexion sur les Pratiques DevOps](#9-réflexion-sur-les-pratiques-devops)
-10. [Conclusion](#10-conclusion)
-11. [Annexes](#11-annexes)
+<style>
+p {
+  text-align: justify;
+}
+</style>
 
 ---
 
 ## 1. Introduction
 
-### 1.1 Objectifs du laboratoire
+Le second laboratoire avait pour objectif d'établir un processus d'intégration continue (CI) et de conteneuriser les applications MobilitySoft et Metrics en respectant les pratiques DevOps. MobilitySoft sert à prédire le trafic routier, tandis que Metrics facilite le suivi des indicateurs de performance, en particulier pour le CI. Le concept central consistait à simplifier et garantir la fiabilité du déploiement et de la gestion des applications, tout en garantissant leur stabilité.
 
-Ce laboratoire avait pour objectifs de :
-- Mettre en place une infrastructure de conteneurisation avec Docker
-- Implémenter un pipeline CI/CD complet avec GitHub Actions
-- Automatiser les tests et le déploiement
-- Collecter et visualiser des métriques CI/CD
-- Appliquer les meilleures pratiques DevOps
+Pour cela, nous avons configuré des pipelines CI qui automatisent les étapes de build, de test et de déploiement vers DockerHub. En même temps, la conteneurisation avec Docker nous a permis d'encapsuler chaque application avec ses dépendances. Des métriques CI ont également été ajoutées pour surveiller la performance du pipeline et améliorer les processus.
 
-### 1.2 Contexte
-
-L'application MobilitySoft est un système de prédiction de trafic développé dans le cadre du cours LOG680. Ce laboratoire vise à moderniser son infrastructure de développement et de déploiement en adoptant des pratiques DevOps contemporaines.
-
----
-
-## 2. Architecture de l'application
-
-### 2.1 Architecture globale
-
-Le diagramme ci-dessous illustre l'architecture globale du système CI/CD de MobilitySoft :
-
-![Architecture Globale](out/diagrammes/architecture-globale/architecture-globale.svg)
-
-**Flux de déploiement** :
-1. Le développeur pousse du code vers GitHub
-2. GitHub Actions déclenche le pipeline CI/CD (3 jobs)
-3. Les tests s'exécutent (25 tests unitaires et d'intégration)
-4. Si les tests passent, l'image Docker est construite
-5. L'image est poussée vers DockerHub avec tags automatiques
-6. Les métriques CI/CD sont collectées et envoyées vers l'application Metrics
-7. L'environnement d'exécution peut alors pull l'image et la déployer
-
-**Note** : Les diagrammes PlantUML source sont disponibles dans le dossier `diagrammes/`.
+Ce laboratoire nous a permis d'approfondir notre connaissance des méthodes DevOps et de mettre en œuvre des techniques concrètes pour administrer le cycle de vie des applications dans un contexte collaboratif et optimisé.
 
 
-### 2.2 Composants principaux
 
-**Application MobilitySoft** :
-- Framework : FastAPI (Python)
-- Serveur : Uvicorn
-- Modèle ML : scikit-learn (LogisticRegression)
-- API REST pour prédictions et consultation
 
-**Base de données** :
-- PostgreSQL 15 Alpine
-- Stockage des prédictions
-- Volumes Docker persistants
 
-**CI/CD** :
-- GitHub Actions (3 workflows)
-- Tests automatisés (25 tests)
-- Build et push Docker automatique
+<br>
+
+## 2. Répartition du travail
+
+Dans un premier temps, Nilaxsan Tharmalingam a été chargé de conteneuriser les applications MobilitySoft et Metrics en créant les images Docker et en les publiant sur DockerHub. Il a également configuré les pipelines d'intégration continue pour ces applications avec GitHub Actions, incluant les étapes de build, de test et de déploiement sur DockerHub.
+
+Massy Haddad s'est ensuite occupé de la configuration des variables d'environnement et de la mise en place des hooks pré-commit (pre-commit Git Hooks) pour préserver la qualité du code. Il a également travaillé sur les modifications du code pour garantir la persistance des données en configurant leur sauvegarde dans la base de données. Massy Haddad et Taha Beniffou ont collaboré ensemble pour mettre en place les métriques CI permettant d'évaluer les performances du pipeline.
+
+Taha Beniffou a pris en charge l'implémentation des tests automatiques, incluant la séparation automatique des tests unitaires et d'intégration avec les markers pytest. Il a également contribué à l'amélioration de la qualité du code et à la configuration des différents aspects du pipeline CI/CD.
+
+Nilaxsan Tharmalingam a rédigé une bonne partie de la documentation et du rapport avec l'aide de Massy Haddad et Taha Beniffou. Les trois membres ont collaboré à la rédaction finale et ont réalisé les tests pour s'assurer de la qualité et de la fiabilité de l'application.
+
+Au cours de ce projet, nous avons collaboré pour surmonter les obstacles techniques et assurer que chaque phase se déroulait en accord avec les critères du laboratoire 2.
 
 ---
 
-## 3. Conteneurisation avec Docker
+## 3. Description et justifications des étapes d'implémentation du CI
 
-### 3.1 Dockerfile
+Notre pipeline d'intégration continue a été structuré en trois étapes séquentielles distinctes, chacune ayant un rôle précis dans le processus de déploiement. Cette organisation permet de garantir la qualité du code à chaque niveau avant de passer à l'étape suivante, réduisant ainsi les risques d'erreurs en production.
 
-Nous avons créé un Dockerfile optimisé pour la production :
+La première étape consiste en l'exécution des tests d'intégration automatiques. Ce choix a été fait pour valider le bon fonctionnement de l'application avant toute tentative de build ou de déploiement. Les tests d'intégration vérifient que les différents composants de l'application (API FastAPI, base de données PostgreSQL, modèle de prédiction) communiquent correctement entre eux. Cette étape s'exécute sur toutes les branches pour permettre aux développeurs de détecter rapidement les problèmes avant de merger leurs modifications. Nous avons utilisé pytest avec des markers pour séparer automatiquement les tests unitaires des tests d'intégration, ce qui permet une exécution ciblée et plus rapide du pipeline. Si cette étape échoue, le pipeline s'arrête immédiatement, empêchant ainsi la construction d'images Docker défectueuses.
 
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-RUN apt-get update && apt-get install -y gcc postgresql-client
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
+La deuxième étape du pipeline est la construction de l'image Docker pour l'application MobilitySoft. Cette étape ne s'exécute que sur la branche principale (main/master) et uniquement si les tests d'intégration ont réussi. Le choix de Docker comme technologie de conteneurisation a été motivé par plusieurs facteurs : la portabilité de l'application entre différents environnements, l'isolation des dépendances, et la facilité de déploiement. Le Dockerfile a été optimisé en utilisant une image de base Python légère (python:3.11-slim) et en organisant les instructions dans un ordre qui maximise l'utilisation du cache Docker. Les dépendances sont installées avant de copier le code source, ce qui évite de reconstruire entièrement l'image à chaque modification de code. Cette approche réduit significativement le temps de build et la consommation de ressources dans le pipeline CI.
 
-**Choix techniques** :
-- `python:3.11-slim` : Image légère (150 MB vs 1 GB pour l'image complète)
-- Installation de `gcc` : Requis pour compiler certaines dépendances Python
-- `--no-cache-dir` : Réduit la taille de l'image finale
-- Port 8000 : Standard pour les applications FastAPI
+La troisième et dernière étape consiste à publier l'image Docker sur DockerHub. Cette étape ne s'exécute qu'après le succès des deux étapes précédentes et uniquement sur la branche principale. Le choix de DockerHub comme registry a été dicté par sa gratuité pour les repositories publics, sa large adoption dans l'industrie, et son intégration native avec GitHub Actions. Chaque image est taguée avec plusieurs identifiants : le tag `latest` pour toujours pointer vers la version la plus récente, le numéro de build GitHub Actions pour tracer précisément quelle version a été déployée, et le SHA du commit Git pour permettre un rollback rapide en cas de problème. Cette stratégie de tagging multiple facilite à la fois le déploiement automatique (avec `latest`) et le débogage ou le rollback (avec les tags spécifiques). Les credentials DockerHub sont stockés de manière sécurisée dans les secrets GitHub Actions, évitant ainsi toute exposition dans le code source.
 
-### 3.2 Docker Compose
-
-Le fichier `docker-compose.yml` orchestre deux services :
-
-```yaml
-services:
-  db:
-    image: postgres:15-alpine
-    # Configuration PostgreSQL
-  
-  app:
-    build: .
-    depends_on:
-      db:
-        condition: service_healthy
-    # Configuration application
-```
-
-**Avantages** :
--  Démarrage simplifié avec une seule commande
--  Isolation des services
--  Réseau Docker automatique entre services
--  Volumes persistants pour les données
--  Health checks pour garantir la disponibilité
-
-### 3.3 Tests de conteneurisation
-
-[TODO: Insérer des captures d'écran]
-- Screenshot de `docker-compose up`
-- Screenshot de `docker ps` montrant les 2 conteneurs
-- Screenshot de l'application accessible sur http://localhost:8000
-
-**Résultats** :
--  Les conteneurs démarrent sans erreur
--  L'application se connecte à PostgreSQL
--  Les données persistent après redémarrage
--  Temps de démarrage : ~10 secondes
+L'ensemble de ces trois étapes forme un pipeline robuste qui automatise complètement le processus de validation, construction et publication de l'application. Cette approche DevOps garantit que seul du code testé et validé atteint l'environnement de production, tout en permettant une itération rapide grâce à l'automatisation complète du processus.
 
 ---
 
-## 4. Intégration Continue (CI)
+## 4. Choix des métriques CI
 
-### 4.1 Workflow de tests (`tests.yml`)
+Pour évaluer et optimiser notre pipeline d'intégration continue, nous avons implémenté quatre métriques clés qui nous permettent de surveiller différents aspects de la performance et de la fiabilité du système. Ces métriques ont été choisies pour leur capacité à fournir des insights actionnables sur le processus DevOps et à identifier rapidement les problèmes potentiels.
 
-```yaml
-name: Tests d'intégration
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    services:
-      postgres: [...]
-    steps:
-      - Checkout
-      - Setup Python
-      - Install dependencies
-      - Run tests
-```
+La première métrique mesure le temps d'exécution individuel de chaque build, calculé comme la différence entre l'heure de complétion et l'heure de démarrage du workflow (completed_at - started_at). Cette métrique est stockée dans le champ duration_seconds de la table WorkflowRun. Son avantage principal réside dans sa granularité : elle permet d'identifier précisément quels builds sont anormalement lents et nécessitent une optimisation. Par exemple, si un build particulier prend 15 minutes alors que la moyenne est de 5 minutes, nous pouvons investiguer les changements de code introduits dans ce build spécifique. Cette métrique a été choisie car elle permet une action immédiate et ciblée pour améliorer la performance du pipeline, en identifiant les goulots d'étranglement au niveau de builds individuels plutôt que de se fier uniquement à des moyennes qui peuvent masquer des problèmes ponctuels.
 
-**Caractéristiques** :
-- Déclenchement automatique sur push et PR
-- PostgreSQL comme service container
-- Exécution des 25 tests (unitaires + intégration)
-- Durée moyenne : ~2 minutes
+La deuxième métrique calcule le temps moyen d'exécution sur différentes périodes (7, 14 ou 30 jours), en appliquant une moyenne arithmétique sur toutes les durées de builds pendant la période sélectionnée. Cette valeur est stockée dans le champ avg_duration_seconds de la table CIMetrics. L'avantage de cette métrique est qu'elle révèle les tendances à long terme et permet de détecter une dégradation progressive de la performance qui serait difficile à percevoir en observant uniquement les builds individuels. Par exemple, si la moyenne sur 30 jours augmente graduellement de 5 à 8 minutes, cela indique une accumulation de complexité dans le projet (plus de tests, dépendances plus lourdes, etc.). Nous avons choisi cette métrique car elle complète la première en fournissant une vue macroscopique de l'évolution du pipeline, permettant ainsi une planification proactive de l'optimisation avant que les temps de build ne deviennent problématiques.
 
-### 4.2 Pre-commit hooks
+La troisième métrique mesure le taux de réussite et d'échec des builds en calculant le ratio entre les builds réussis et le total des builds, multiplié par 100 pour obtenir un pourcentage. Les valeurs sont stockées dans trois champs de la table CIMetrics : success_rate (le pourcentage), successful_runs (nombre de succès) et failed_runs (nombre d'échecs). Cette métrique offre l'avantage d'être un indicateur direct de la stabilité du code et de la qualité du pipeline. Un taux de réussite élevé (>90%) indique que le code mergé dans la branche principale est généralement de bonne qualité, tandis qu'un taux faible suggère soit des problèmes de qualité de code, soit des tests instables (flaky tests), soit une configuration CI inadéquate. Nous avons choisi cette métrique car elle est un indicateur clé de performance (KPI) DevOps reconnu qui permet de mesurer objectivement l'impact des pratiques de développement sur la fiabilité du système et de justifier les investissements dans l'amélioration de la qualité du code.
 
-Configuration locale pour maintenir la qualité du code :
+La quatrième métrique analyse la distribution temporelle des exécutions du pipeline en calculant plusieurs agrégations : le nombre moyen de runs par jour, l'heure la plus active et le jour de la semaine le plus actif. Ces informations sont stockées dans les champs runs_per_day_avg, most_active_hour et most_active_day de la table CIMetrics. Cette métrique présente l'avantage de révéler les patterns d'activité de l'équipe de développement et d'utilisation du pipeline, ce qui permet une meilleure planification de la maintenance et de l'allocation des ressources. Par exemple, si nous observons que 80% des builds s'exécutent entre 14h et 16h, nous pouvons éviter de planifier des maintenances du serveur CI pendant cette période. De plus, comprendre les jours les plus actifs aide à anticiper la charge sur l'infrastructure. Nous avons choisi cette métrique car elle apporte une dimension organisationnelle aux données techniques, permettant d'aligner les opérations DevOps avec les réalités du workflow de l'équipe et d'optimiser l'utilisation des ressources d'infrastructure en fonction des besoins réels.
 
-```yaml
-repos:
-  - Black (formatage)
-  - Pylint (linting)
-  - Pytest (tests)
-  - Hooks généraux (trailing whitespace, etc.)
-```
-
-**Bénéfices** :
--  Détection précoce des problèmes
--  Code formaté automatiquement
--  Standards de qualité garantis
--  Réduction des allers-retours en revue de code
-
-### 4.3 Résultats des tests
-
-[TODO: Insérer une capture d'écran du workflow GitHub Actions "Tests"]
-
-**Statistiques** :
--  25 tests au total
--  11 tests unitaires
--  14 tests d'intégration
--  Couverture de code : ~85%
--  Score Pylint : 9.5/10
+Ces quatre métriques combinées offrent une vision complète et multidimensionnelle de la performance du pipeline CI/CD, permettant à la fois une optimisation tactique (builds individuels lents) et stratégique (tendances à long terme, patterns organisationnels).
 
 ---
 
-## 5. Déploiement Continu (CD)
+## 5. Conclusion
 
-### 5.1 Workflow Docker (`docker.yml`)
+Ce deuxième laboratoire nous a permis de mettre en pratique les concepts fondamentaux du DevOps en implémentant un pipeline d'intégration continue complet pour les applications MobilitySoft et Metrics. L'automatisation des processus de test, build et déploiement a transformé un workflow manuel susceptible aux erreurs en un système fiable et reproductible. Nous avons réussi à conteneuriser les applications avec Docker, à configurer un pipeline CI/CD en trois étapes séquentielles, et à implémenter un système de métriques permettant de surveiller la performance du pipeline.
 
-```yaml
-name: Build et Push Docker
-on:
-  push:
-    branches: [main]
-jobs:
-  build-and-push:
-    - Build image
-    - Login to DockerHub
-    - Push image
-```
+Au-delà des aspects techniques, ce laboratoire nous a enseigné l'importance de la collaboration dans un contexte DevOps. La répartition claire des responsabilités entre les membres de l'équipe, combinée à l'utilisation d'outils modernes comme GitHub Actions et Docker, nous a permis de livrer un système robuste. Les défis rencontrés, notamment la gestion des secrets et l'optimisation des temps de build, ont renforcé notre compréhension des enjeux du déploiement continu.
 
-**Stratégie de tagging** :
-- `latest` : Dernière version de la branche main
-- `main-{sha}` : Tag unique par commit
-- `v1.2.3` : Tags de version (si utilisés)
+Les quatre métriques CI/CD implémentées fournissent une visibilité précieuse sur la santé du pipeline et permettent d'identifier proactivement les opportunités d'amélioration. Cette approche data-driven illustre la philosophie DevOps qui place la mesure et l'amélioration continue au cœur du processus de développement.
 
-### 5.2 Configuration DockerHub
-
-**Steps effectuées** :
-1. Création du compte DockerHub
-2. Création du repository `mobilitysoft`
-3. Génération d'un token d'accès
-4. Configuration des secrets GitHub :
-   - `DOCKERHUB_USERNAME`
-   - `DOCKERHUB_TOKEN`
-
-[TODO: Insérer des captures d'écran]
-- Repository DockerHub avec les images
-- Historique des tags
-
-### 5.3 Pipeline CI/CD complet
-
-Le workflow `ci-cd.yml` combine tous les éléments :
-
-```
-Code Push → Tests → Build Docker → Push DockerHub → Métriques
-```
-
-**Sécurité** :
--  Build Docker uniquement si les tests passent
--  Push uniquement sur branches protégées (main, develop)
--  Tokens stockés dans les secrets GitHub
+En conclusion, les compétences acquises en matière d'automatisation, de conteneurisation et de monitoring sont directement applicables dans un contexte professionnel et constituent une base solide pour nos futurs projets. L'infrastructure CI/CD mise en place démontre qu'il est possible de créer un système de déploiement automatisé, fiable et mesurable pour des applications complexes.
 
 ---
 
-## 6. Tests et Qualité du Code
+## Références
 
-### 6.1 Types de tests
+> **Liens de documentation**
+> - [Repository GitHub](https://github.com/Massy-Haddad/MTL-MobilitySoft-a25-grp1-eq1)
+> - [Documentation Wiki complète](https://github.com/Massy-Haddad/MTL-MobilitySoft-a25-grp1-eq1/wiki)
+> - [API Documentation](http://localhost:8000/docs) (disponible quand l'API est démarrée)
 
-**Tests unitaires (11 tests)** :
-- `test_model.py` : Tests du modèle de prédiction
-- `test_utils.py` : Tests des fonctions utilitaires
-- Durée d'exécution : ~5 secondes
-
-**Tests d'intégration (14 tests)** :
-- `test_api_base.py` : Tests de l'API de prédiction
-- `test_consultation_api.py` : Tests de l'API de consultation
-- `test_predictions.py` : Tests end-to-end
-- Durée d'exécution : ~40 secondes
-
-### 6.2 Couverture de code
-
-[TODO: Générer et insérer un rapport de couverture avec pytest-cov]
-
-```bash
-pytest tests/ --cov=app --cov-report=html
-```
-
-**Résultats attendus** :
-- Couverture globale : ~85%
-- API endpoints : 95%
-- Modèle de prédiction : 90%
-- Utilitaires : 75%
-
-### 6.3 Analyse statique
-
-**Pylint** :
-- Score : 9.5/10
-- Règles personnalisées dans `.pylintrc`
-- Vérification automatique dans pre-commit
-
-**Black** :
-- Formatage automatique
-- Longueur de ligne : 100 caractères
-- Style cohérent dans toute la codebase
-
----
-
-## 7. Métriques CI/CD
-
-### 7.1 Métriques collectées
-
-Pour chaque exécution du pipeline, nous collectons :
-
-**Métriques de tests** :
-- Nombre de tests (total, passés, échoués)
-- Durée d'exécution
-- Couverture de code
-- Score Pylint
-
-**Métriques de build** :
-- Temps de build Docker
-- Taille de l'image finale
-- Succès/échec du push DockerHub
-- Tags créés
-
-**Métriques Git** :
-- Branche
-- Commit SHA
-- Auteur
-- Message de commit
-
-### 7.2 Intégration avec l'application Metrics
-
-[TODO: Si implémenté, décrire l'intégration]
-
-**Architecture** :
-```
-GitHub Actions → HTTP POST → Metrics API → Dashboard
-```
-
-**Exemple de payload** :
-```json
-{
-  "project": "mobilitysoft",
-  "branch": "main",
-  "metrics": {
-    "tests": {"total": 25, "passed": 25},
-    "build": {"duration_seconds": 120}
-  }
-}
-```
-
-[TODO: Insérer des captures d'écran du dashboard Metrics]
-
-### 7.3 Visualisation des métriques
-
-[TODO: Si implémenté, ajouter des graphiques]
-- Évolution du nombre de tests au fil du temps
-- Durée moyenne des builds
-- Taux de succès du pipeline
-- Taille de l'image Docker par version
-
----
-
-## 8. Défis Rencontrés et Solutions
-
-### 8.1 Conteneurisation
-
-**Défi 1 : Connexion entre containers**
-- **Problème** : L'application ne pouvait pas se connecter à PostgreSQL
-- **Cause** : Utilisation de `localhost` au lieu du nom du service Docker
-- **Solution** : Configuration de `DATABASE_URL=postgresql://...@db:5432/...`
-
-**Défi 2 : Ordre de démarrage**
-- **Problème** : L'application démarrait avant que PostgreSQL soit prêt
-- **Solution** : Ajout de `depends_on` avec `condition: service_healthy`
-
-### 8.2 CI/CD
-
-**Défi 3 : Tests échouant sur GitHub Actions**
-- **Problème** : Tests passent localement mais échouent sur CI
-- **Cause** : Variables d'environnement manquantes
-- **Solution** : Configuration explicite dans le workflow YAML
-
-**Défi 4 : Authentification DockerHub**
-- **Problème** : "unauthorized: authentication required"
-- **Cause** : Token DockerHub mal configuré
-- **Solution** : Régénération du token avec les bonnes permissions
-
-### 8.3 Tests
-
-**Défi 5 : Isolation des tests**
-- **Problème** : Tests interférant les uns avec les autres
-- **Cause** : Base de données partagée entre tests
-- **Solution** : Fixtures pytest avec rollback de transaction
-
----
-
-## 9. Réflexion sur les Pratiques DevOps
-
-### 9.1 Bénéfices observés
-
-**Automatisation** :
--  Gain de temps : 30 minutes → 5 minutes par déploiement
--  Réduction des erreurs humaines
--  Feedback rapide sur la qualité du code
-
-**Qualité** :
--  Tests exécutés systématiquement
--  Code formaté uniformément
--  Standards de qualité garantis
-
-**Collaboration** :
--  Intégration plus facile des contributions
--  Moins de conflits lors des merges
--  Historique clair des changements
-
-### 9.2 Pratiques DevOps appliquées
-
-| Pratique | Implémentation | Bénéfice |
-|----------|----------------|----------|
-| **Infrastructure as Code** | Docker Compose | Reproductibilité |
-| **Continuous Integration** | GitHub Actions | Feedback rapide |
-| **Continuous Deployment** | Push DockerHub | Déploiement simplifié |
-| **Automated Testing** | Pytest + CI | Qualité garantie |
-| **Code Review** | Pre-commit + PR | Standards respectés |
-| **Monitoring** | Métriques CI/CD | Visibilité |
-
-### 9.3 Améliorations futures
-
-**Court terme** :
-- [ ] Ajout de tests de performance
-- [ ] Configuration de notifications Slack pour les failures
-- [ ] Amélioration de la couverture de code (95%)
-
-**Moyen terme** :
-- [ ] Déploiement automatique sur environnement de staging
-- [ ] Tests de sécurité automatisés (SAST)
-- [ ] Analyse des dépendances (CVE scanning)
-
-**Long terme** :
-- [ ] Déploiement sur Kubernetes
-- [ ] Service mesh pour la communication inter-services
-- [ ] Observabilité complète (logs, traces, métriques)
-
----
-
-## 10. Conclusion
-
-### 10.1 Objectifs atteints
-
-Ce laboratoire a permis de mettre en place avec succès une infrastructure DevOps complète pour l'application MobilitySoft :
-
- **Conteneurisation** : Docker + Docker Compose opérationnels  
- **CI/CD** : Pipeline complet avec GitHub Actions  
- **Tests** : 25 tests automatisés (unitaires + intégration)  
- **Qualité** : Pre-commit hooks + analyse statique  
- **Documentation** : README, SETUP, QUICKSTART complets  
- **Métriques** : Collecte et visualisation des données CI/CD  
-
-### 10.2 Apprentissages clés
-
-**Techniques** :
-- Maîtrise de Docker et Docker Compose
-- Configuration de workflows GitHub Actions
-- Écriture de tests d'intégration
-- Gestion des secrets et de la sécurité
-
-**Méthodologiques** :
-- Importance de l'automatisation
-- Valeur des tests automatisés
-- Nécessité de la documentation
-- Bénéfices du feedback rapide
-
-**Soft skills** :
-- Collaboration en équipe
-- Résolution de problèmes techniques
-- Communication des décisions techniques
-- Gestion du temps et des priorités
-
-### 10.3 Impact sur le projet
-
-L'adoption de ces pratiques DevOps a transformé notre façon de travailler :
-
-**Avant** :
-- Déploiement manuel (30 min)
-- Tests exécutés manuellement (incohérents)
-- Configuration d'environnement complexe
-- Difficultés d'intégration des changements
-
-**Après** :
-- Déploiement automatique (5 min)
-- Tests automatiques à chaque commit
-- Environnement reproductible avec Docker
-- Intégration fluide et continue
-
----
-
-## 11. Annexes
-
-### Annexe A : Commandes utiles
-
-```bash
-# Docker
-docker-compose up -d
-docker-compose logs -f
-docker-compose down -v
-
-# Tests
-pytest tests/ -v
-pytest tests/ --cov=app
-
-# Pre-commit
-pre-commit install
-pre-commit run --all-files
-
-# Script de déploiement
-./deploy.sh start
-./deploy.sh test
-./deploy.sh status
-```
-
-### Annexe B : Configuration des secrets GitHub
-
-[TODO: Ajouter des captures d'écran]
-
-1. Settings → Secrets and variables → Actions
-2. New repository secret
-3. Ajouter `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN`
-
-### Annexe C : Structure du repository
-
-```
-mobilitysoft-eq01/
-├── .github/workflows/     # CI/CD workflows
-├── app/                   # Code de l'application
-├── tests/                 # Tests unitaires et d'intégration
-├── Dockerfile             # Image Docker
-├── docker-compose.yml     # Orchestration
-├── requirements.txt       # Dépendances Python
-└── README.md             # Documentation
-```
-
-### Annexe D : Références
-
-- [Documentation Docker](https://docs.docker.com/)
-- [GitHub Actions Docs](https://docs.github.com/en/actions)
-- [FastAPI Docs](https://fastapi.tiangolo.com/)
-- [Pytest Docs](https://docs.pytest.org/)
-- [12 Factor App](https://12factor.net/)
-
-### Annexe E : Captures d'écran
-
-[TODO: Ajouter toutes les captures d'écran]
-
-1. Interface web de MobilitySoft
-2. Workflow GitHub Actions (succès)
-3. Repository DockerHub avec images
-4. Résultats des tests
-5. Dashboard Metrics (si implémenté)
-6. Docker Compose en cours d'exécution
-7. Logs de l'application
-8. Base de données avec prédictions
-
----
-
-**Signatures de l'équipe** :
-
-[Nom 1] - [Signature/Date]  
-[Nom 2] - [Signature/Date]  
-[Nom 3] - [Signature/Date]  
-
----
-
-**Fin du rapport**
