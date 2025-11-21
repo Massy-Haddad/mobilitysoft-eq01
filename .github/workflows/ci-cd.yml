@@ -7,7 +7,7 @@ on:
     branches: [ main, master, develop ]
 
 env:
-  DOCKER_IMAGE_NAME: mobilitysoft
+  DOCKER_IMAGE_NAME: mobilitysoft-app
 
 jobs:
   # Étape 1: Tests d'intégration
