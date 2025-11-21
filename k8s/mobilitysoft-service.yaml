@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobilitysoft-service
+  namespace: grp01eq1-namespace
+spec:
+  type: ClusterIP
+  selector:
+    app: mobilitysoft
+  ports:
+    - port: 80
+      targetPort: 5432

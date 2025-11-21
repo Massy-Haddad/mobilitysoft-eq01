@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mobilitysoft-config
+  namespace: grp01eq1-namespace
+data:
+  APP_ENV: "production"

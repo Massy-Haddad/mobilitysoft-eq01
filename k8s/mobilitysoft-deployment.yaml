@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobilitysoft
+  namespace: grp01eq1-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobilitysoft
+  template:
+    metadata:
+      labels:
+        app: mobilitysoft
+    spec:
+      containers:
+        - name: mobilitysoft
+          image: postgres:16.1-alpine
+          ports:
+            - containerPort: 5432 
+          envFrom:
+            - configMapRef:
+                name: mobilitysoft-config
+            - secretRef:
+                name: db-credentials
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "250Mi"
+            limits:
+              cpu: "500m"
+              memory: "500Mi"
