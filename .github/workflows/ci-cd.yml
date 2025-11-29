@@ -52,6 +52,7 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/mobilitysoft-eq01:${{ github.sha }}
 
+
   deploy:
     name: Deploy MobilitySoft to GKE
     runs-on: ubuntu-latest
@@ -61,27 +62,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
+      # 1) Auth GCP avec ton service account JSON (GCP_SA_KEY)
+      - name: Auth to GCP
+        uses: google-github-actions/auth@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      # 2) Récupérer les credentials GKE → configure kubectl automatiquement
       - name: Get GKE credentials
-        run: |
-          gcloud container clusters get-credentials "$GKE_CLUSTER_NAME" \
-            --zone "$GKE_CLUSTER_ZONE" \
-            --project "$GCP_PROJECT_ID"
-        env:
-          GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
-          GKE_CLUSTER_ZONE: ${{ secrets.GKE_CLUSTER_ZONE }}
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER_NAME }}
+          location: ${{ secrets.GKE_CLUSTER_ZONE }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+      # 3) Namespace
       - name: Ensure namespace exists
         run: |
           kubectl get ns grp01eq1-namespace || kubectl create ns grp01eq1-namespace
 
+      # 4) Secret DB (même que Metrics)
       - name: Create / update db-credentials secret
         run: |
           kubectl create secret generic db-credentials \
@@ -93,14 +93,17 @@ jobs:
             -n grp01eq1-namespace \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      # 5) Injecter la bonne image pour MobilitySoft
       - name: Inject image tag in mobilitysoft-deployment.yaml
         run: |
           sed -i "s|DOCKER_USERNAME/mobilitysoft-eq01:IMAGE_TAG_MOBILITY|${{ secrets.DOCKER_USERNAME }}/mobilitysoft-eq01:${{ github.sha }}|g" k8s/mobilitysoft-deployment.yaml
 
+      # 6) Appliquer les manifests
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f k8s/ -n grp01eq1-namespace
 
+      # 7) Vérifier le rollout
       - name: Verify rollout
         run: |
           kubectl rollout status deployment/mobilitysoft -n grp01eq1-namespace
